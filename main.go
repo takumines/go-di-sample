@@ -2,15 +2,11 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
-	"go-di-sample/application/service"
-	"go-di-sample/infrastructure/api/jsonplaceholder"
-	"go-di-sample/interface/handler"
+	"go-di-sample/di"
 )
 
 func main() {
-	c := jsonplaceholder.NewClient()
-	s := service.NewUserService(c)
-	h := handler.NewUserHandler(s)
+	h := di.InitializeUserHandler()
 
 	e := echo.New()
 	e.GET("/users", h.GetUserList)
