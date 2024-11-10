@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"go-di-sample/domain/model"
+	"go-di-sample/domain/repository"
 	"net/http"
 )
 
@@ -13,7 +14,7 @@ type Client struct {
 }
 
 // NewClient JsonPlaceHolderClientのコンストラクタ
-func NewClient() *Client {
+func NewClient() repository.UserRepository {
 	return &Client{
 		httpClient: &http.Client{},
 		baseURL:    "https://jsonplaceholder.typicode.com",
