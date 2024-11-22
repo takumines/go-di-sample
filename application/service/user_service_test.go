@@ -3,42 +3,23 @@ package service
 import (
 	"context"
 	"go-di-sample/mock/api/jsonplaceholder"
-	"log"
-	"os"
+	"go-di-sample/utils/test"
 	"testing"
 )
 
 func TestMain(m *testing.M) {
-	// NOTE: テスト実行時はカレントディレクトリがテスト実行場所となるため、テストコード内でファイルを読み込む処理がある場合、
-	//	参照できなくなるケースを回避するようカレントディレクトリをプロジェクトのルートに変更する
-
-	// カレントディレクトリを取得
-	originalDir, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("failed to get current directory: %v", err)
-	}
-
-	// カレントディレクトリをプロジェクトのルートに変更
-	if err := os.Chdir("../../"); err != nil {
-		log.Fatalf("failed to change directory: %v", err)
-	}
-
-	// テスト完了後に元のディレクトリに戻す
-	defer func() {
-		if err := os.Chdir(originalDir); err != nil {
-			log.Fatalf("failed to restore original directory: %v", err)
-		}
-	}()
-
-	os.Exit(m.Run())
+	test.RunWithProjectRoot(m, "../../")
 }
 
 func TestUserService_GetUserList(t *testing.T) {
 	mockRepo := jsonplaceholder.NewMockClient()
-
 	s := NewUserService(mockRepo)
 
-	users, err := s.GetUserList(context.Background())
+	// ファイル内容をコンテキストに格納
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, "path", "mock/api/jsonplaceholder/fixture/user_list.json")
+
+	users, err := s.GetUserList(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,10 +39,12 @@ func TestUserService_GetUserList(t *testing.T) {
 
 func TestUserService_GetUserById(t *testing.T) {
 	mockRepo := jsonplaceholder.NewMockClient()
-
 	s := NewUserService(mockRepo)
 
-	user, err := s.GetUserById(context.Background(), "1")
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, "path", "mock/api/jsonplaceholder/fixture/user.json")
+
+	user, err := s.GetUserById(ctx, "1")
 	if err != nil {
 		t.Fatal(err)
 	}

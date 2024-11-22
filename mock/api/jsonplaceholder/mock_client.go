@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"go-di-sample/domain/model"
 	"go-di-sample/domain/repository"
-	"log"
 	"os"
 )
 
@@ -16,16 +15,20 @@ func NewMockClient() repository.UserRepository {
 }
 
 func (c *MockClient) GetUserList(ctx context.Context) ([]*model.User, error) {
-	file, err := os.Open("mock/api/jsonplaceholder/fixture/user_list.json")
+	// コンテキストの値からファイルを取得
+	path, ok := ctx.Value("path").(string)
+	if !ok {
+		return nil, nil
+	}
+	// fixtureデータを取得してコンテキストに格納する
+	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("file", file)
-
 	defer file.Close()
 
 	var users []*model.User
-	if err = json.NewDecoder(file).Decode(&users); err != nil {
+	if err := json.NewDecoder(file).Decode(&users); err != nil {
 		return nil, err
 	}
 
@@ -33,15 +36,17 @@ func (c *MockClient) GetUserList(ctx context.Context) ([]*model.User, error) {
 }
 
 func (c *MockClient) GetUserById(ctx context.Context, id string) (*model.User, error) {
-	file, err := os.Open("mock/api/jsonplaceholder/fixture/user.json")
+	path, ok := ctx.Value("path").(string)
+	if !ok {
+		return nil, nil
+	}
+	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 
-	defer file.Close()
-
 	var user model.User
-	if err = json.NewDecoder(file).Decode(&user); err != nil {
+	if err := json.NewDecoder(file).Decode(&user); err != nil {
 		return nil, err
 	}
 
